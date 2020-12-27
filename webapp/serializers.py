@@ -24,7 +24,7 @@ class TrainingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Training
-        fields = "__all__"
+        fields = ['series', 'name', 'about', 'is_public', 'training_calories', 'training_type', 'created_by']
 
     def create(self, validated_data):
         series = validated_data.pop('series')
@@ -39,7 +39,7 @@ class TrainingSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["nick", "name", "surname"]
+        fields = ["nick", "name", "surname", "avatar"]
 
 
 class UserRawSerializer(serializers.ModelSerializer):

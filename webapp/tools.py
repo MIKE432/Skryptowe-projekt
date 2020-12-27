@@ -1,6 +1,6 @@
 import random
-import string
 
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -13,10 +13,16 @@ def get_random_string(length):
     return result_str
 
 
+def perform_get(func, **kwargs):
+    try:
+        return func(**kwargs)
+    except ObjectDoesNotExist:
+        return None
+
+
 def handle_request(func, **kwargs):
     try:
         return func(**kwargs)
-
     except BadRequestException as e:
         return Response({"code": e.code, "message": e.msg}, e.code)
     except NotFoundException as e:
@@ -60,4 +66,3 @@ class ExerciseTypes:
     SHOULDER: str = "SHOULDER"
     BACK: str = "BACK"
     OTHER: str = "OTHER"
-

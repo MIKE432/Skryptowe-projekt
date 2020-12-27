@@ -24,8 +24,11 @@ urlpatterns = [
 
     path(r'api/users/', user.UserList.as_view()),
     path(r'api/users/<int:user_id>/', user.UserDetails.as_view()),
-    path(r'api/users/login/', user.UserLogin.as_view()),
-    path(r'api/users/register/', user.UserRegister.as_view()),
+    path(r'api/user/login/', user.UserLogin.as_view()),
+    path(r'api/user/register/', user.UserRegister.as_view()),
+    path(r'api/user/logout/', user.UserLogout.as_view()),
 
-    path(r'api/trainings/<int:training_id>/', training.Training.as_view())
+    path(r'api/trainings/<int:training_id>/', training.TrainingDetails.as_view()),
+    path(r'api/training', training.Training.as_view())
+
 ]

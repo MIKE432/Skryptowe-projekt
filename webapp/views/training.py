@@ -1,13 +1,13 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from webapp.controllers.training import get_training_by_id
+from webapp.controllers.training import get_training_by_id, create_training
 from webapp.models import Training as _Training
 from webapp.serializers import TrainingSerializer
 from webapp.tools import handle_request
 
 
-class TrainingList(APIView):
+class Trainings(APIView):
 
     def get(self, request):
         training = _Training.objects.all()
@@ -15,11 +15,13 @@ class TrainingList(APIView):
         return Response(serializer.data)
 
 
-#will be training details
-class Training(APIView):
+class TrainingDetails(APIView):
 
     def get(self, request, training_id):
         return handle_request(get_training_by_id, request=request, training_id=training_id)
 
-    def post(self):
-        pass
+
+class Training(APIView):
+
+    def post(self, request):
+        return handle_request(create_training, request=request)

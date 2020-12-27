@@ -1,4 +1,7 @@
+from rest_framework.views import APIView
+
 from webapp.controllers.user import *
+from webapp.tools import handle_request
 
 
 class UserLogout(APIView):

@@ -24,22 +24,24 @@ class TrainingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Training
-        fields = ['series', 'name', 'about', 'is_public', 'training_calories', 'training_type', 'created_by']
+        fields = ['series', 'name', 'about', 'is_public', 'training_calories', 'training_type']
 
-    def create(self, validated_data):
-        series = validated_data.pop('series')
-        new_training = Training.objects.create(**validated_data)
-        for _series in series:
-            exercises = _series.pop('exercises')
-            new_series = Series.objects.create(training_id=new_training, **_series)
-            for exercise in exercises:
-                Exercise.objects.create(series_id=new_series, **exercise)
+    # def create(self, validated_data):
+    #     series = validated_data.pop('series')
+    #     user = User.objects.get(pk=6)
+    #     new_training = Training.objects.create(created_by=user, **validated_data)
+    #     for _series in series:
+    #         exercises = _series.pop('exercises')
+    #         print("exer", exercises)
+    #         new_series = Series.objects.create(training_id=new_training, **_series)
+    #         for exercise in exercises:
+    #             Exercise.objects.create(series_id=new_series, **exercise)
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["nick", "name", "surname", "avatar"]
+        fields = ["user_id", "nick", "name", "surname", "avatar"]
 
 
 class UserRawSerializer(serializers.ModelSerializer):
@@ -67,4 +69,22 @@ class TrainingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Training
         fields = "__all__"
+
+
+class RawTrainingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Training
+        fields = ['training_id', 'name', 'about', 'is_public', 'training_calories', 'training_type', 'created_by']
+
+
+class RawSeriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Series
+        fields = ['series_id', 'iteration', 'rest_time', 'training_id']
+
+
+class RawExerciseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exercise
+        fields = ['name', 'about', 'number', 'yt_link', 'photo', 'series_id', 'exercise_type', 'exercise_calories']
 

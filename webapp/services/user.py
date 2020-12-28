@@ -11,7 +11,7 @@ def get_raw_user_by_args(**kwargs):
     user = perform_get(User.objects.get, **kwargs)
 
     if user is None:
-        raise NotFoundException("There is no user with given id")
+        return None
 
     serializer = UserRawSerializer(user, many=False)
     return serializer.data
@@ -21,7 +21,7 @@ def get_user_by_args(**kwargs):
     user = perform_get(User.objects.get, **kwargs)
 
     if user is None:
-        raise NotFoundException("There is no user with given id")
+        return None
 
     serializer = UserSerializer(user, many=False)
 
@@ -29,7 +29,6 @@ def get_user_by_args(**kwargs):
 
 
 def get_all_users_by_args(**kwargs):
-
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
 
@@ -40,17 +39,20 @@ def login_user_by_id(user_id, new_session_id):
     user = perform_get(User.objects.get, user_id=user_id)
 
     if user is None:
-        raise NotFoundException("There is no user with given id")
+        return None
 
     user.session_id = new_session_id
     user.save(update_fields=['session_id'])
+
     return user
 
 
 def logout_user_by_id(session_id):
     user = perform_get(User.objects.get, session_id=session_id)
+
     if user is None:
-        raise NotFoundException("There is no user with given session id")
+        return
+
     user.session_id = None
     user.save(update_fields=['session_id'])
 
@@ -59,7 +61,7 @@ def create_user(user):
     serializer = UserRawSerializer(data=user)
 
     if not serializer.is_valid():
-        raise BadRequestException("User with given nickname exists")
+        return None
 
     serializer.save()
 
@@ -82,3 +84,14 @@ def generate_session_id():
             User.objects.get(session_id=session_id)
         except ObjectDoesNotExist:
             return session_id
+
+
+def delete_user_by_id(user_id):
+    user = perform_get(User.objects.get, user_id=user_id)
+
+    if user is None:
+        return False
+
+    user.delete()
+
+    return True

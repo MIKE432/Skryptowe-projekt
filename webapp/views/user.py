@@ -15,6 +15,9 @@ class UserDetails(APIView):
     def get(self, request, user_id=None):
         return handle_request(get_user_by_id, request=request, user_id=user_id)
 
+    def delete(self, request, user_id=None):
+        return handle_request(delete_user, request=request, user_id=user_id)
+
 
 class UserLogin(APIView):
 

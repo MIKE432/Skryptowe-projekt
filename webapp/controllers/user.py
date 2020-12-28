@@ -1,6 +1,5 @@
 import hashlib
 
-from django.utils.crypto import get_random_string
 from rest_framework import status
 from rest_framework.response import Response
 from webapp.Errors import *
@@ -9,6 +8,10 @@ from webapp.services.user import *
 
 def register_user(request):
     user = create_user(request.data)
+
+    if user is None:
+        raise BadRequestException("User with given nickname exists")
+
     return Response(map_user_to_response_model(user), status.HTTP_201_CREATED)
 
 
@@ -18,11 +21,14 @@ def logout_user(request):
 
     logout_user_by_id(request.data["session_id"])
 
-    return Response({"status": 200}, status.HTTP_200_OK)
+    return Response({"code": 200}, status.HTTP_200_OK)
 
 
 def login_user(request):
     db_user = get_raw_user_by_args(nick=request.data['nick'])
+
+    if db_user is None:
+        raise NotFoundException("There is no user with given id")
 
     password_and_salt = request.data['password'] + db_user['salt']
     hashed_password_and_salt = hashlib.sha256(password_and_salt.encode(encoding="utf-8")).hexdigest()
@@ -33,7 +39,11 @@ def login_user(request):
     return_user = db_user
 
     session_id = generate_session_id()
-    login_user_by_id(db_user['user_id'], session_id)
+    created_user = login_user_by_id(db_user['user_id'], session_id)
+
+    if created_user is None:
+        raise InternalServerException("Cannot log in user")
+
     return_user['session_id'] = session_id
 
     return Response(map_user_to_response_model(return_user), status.HTTP_200_OK)
@@ -45,9 +55,26 @@ def get_user_by_id(request, user_id):
 
     user = get_user_by_args(pk=user_id)
 
+    if user is None:
+        raise NotFoundException("There is no user with given id")
+
     return Response(user, status.HTTP_200_OK)
 
 
 def get_all_users(request):
     users = get_all_users_by_args()
     return Response(users, status.HTTP_200_OK)
+
+
+def delete_user(request, user_id):
+
+    if 'password' not in request.data:
+        raise BadRequestException("You need provide password to remove that account")
+
+    if 'session_id' not in request.data:
+        raise BadRequestException("You need provide session_id to remove that account")
+
+    if not delete_user_by_id(user_id):
+        raise UnauthorizedException("You don't have permission to delete that account")
+
+    return Response({"code": 200}, status.HTTP_200_OK)

@@ -68,7 +68,7 @@ class Exercise(models.Model):
     name = models.CharField(max_length=100)
     about = models.CharField(max_length=1000)
     number = models.IntegerField()
-    yt_link = models.CharField(max_length=500)
+    yt_link = models.CharField(max_length=500, default="", blank=True)
     photo = models.ImageField(blank=True, default=None, null=True)
     series_id = models.ForeignKey(Series, related_name="exercises", on_delete=models.CASCADE)
     exercise_type = models.CharField(choices=EXERCISE_TYPES, default=ExerciseTypes.OTHER, max_length=50)

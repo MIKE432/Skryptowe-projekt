@@ -24,18 +24,7 @@ class TrainingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Training
-        fields = ['series', 'name', 'about', 'is_public', 'training_calories', 'training_type']
-
-    # def create(self, validated_data):
-    #     series = validated_data.pop('series')
-    #     user = User.objects.get(pk=6)
-    #     new_training = Training.objects.create(created_by=user, **validated_data)
-    #     for _series in series:
-    #         exercises = _series.pop('exercises')
-    #         print("exer", exercises)
-    #         new_series = Series.objects.create(training_id=new_training, **_series)
-    #         for exercise in exercises:
-    #             Exercise.objects.create(series_id=new_series, **exercise)
+        fields = "__all__"
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -86,5 +75,5 @@ class RawSeriesSerializer(serializers.ModelSerializer):
 class RawExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exercise
-        fields = ['name', 'about', 'number', 'yt_link', 'photo', 'series_id', 'exercise_type', 'exercise_calories']
+        fields = ['exercise_id', 'name', 'about', 'number', 'yt_link', 'photo', 'series_id', 'exercise_type', 'exercise_calories']
 

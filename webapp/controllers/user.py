@@ -7,10 +7,32 @@ from webapp.services.user import *
 
 
 def register_user(request):
+    body = request.data
+
+    if 'name' not in body:
+        raise BadRequestException("Name is required")
+
+    if 'surname' not in body:
+        raise BadRequestException("Surname is required")
+
+    if 'password' not in body:
+        raise BadRequestException("Surname is required")
+
     user = create_user(request.data)
 
     if user is None:
         raise BadRequestException("User with given nickname exists")
+
+    session_id = generate_session_id()
+
+    created_user = login_user_by_id(user['user_id'], session_id)
+
+    if created_user is None:
+        raise InternalServerException("Cannot log in user")
+
+    return_user = user
+
+    return_user['session_id'] = session_id
 
     return Response(map_user_to_response_model(user), status.HTTP_201_CREATED)
 
@@ -66,15 +88,34 @@ def get_all_users(request):
     return Response(users, status.HTTP_200_OK)
 
 
-def delete_user(request, user_id):
+def update_user(request, user_id, **kwargs):
+    if 'session_id' not in request.query_params:
+        raise BadRequestException('You have to provide session id')
 
-    if 'password' not in request.data:
+    if 'avatar' not in kwargs:
+        raise BadRequestException('Avatar is required')
+
+    user = update_user_photo(request.query_params['session_id'], kwargs['avatar'][0])
+
+    if user is None:
+        raise InternalServerException("Cannot ")
+
+    return Response({"code": 200}, status.HTTP_200_OK)
+
+
+def delete_user(request, user_id):
+    request_body = request.data
+    if 'password' not in request_body:
         raise BadRequestException("You need provide password to remove that account")
 
-    if 'session_id' not in request.data:
+    if 'session_id' not in request_body:
         raise BadRequestException("You need provide session_id to remove that account")
+
+    if not is_password_matching(request_body['password'], user_id=user_id, session_id=request_body['session_id']):
+        raise UnauthorizedException('You don`t have permission to delete that user')
 
     if not delete_user_by_id(user_id):
         raise UnauthorizedException("You don't have permission to delete that account")
 
     return Response({"code": 200}, status.HTTP_200_OK)
+

@@ -4,9 +4,15 @@ from webapp.controllers.user import *
 from webapp.tools import handle_request
 
 
+class ImageDownload(APIView):
+
+    def get(self, request, image):
+        return handle_request(download_image, request=request, image=image)
+
+
 class UserLogout(APIView):
 
-    def post(self, request):
+    def put(self, request):
         return handle_request(logout_user, request=request)
 
 
@@ -17,6 +23,9 @@ class UserDetails(APIView):
 
     def delete(self, request, user_id=None):
         return handle_request(delete_user, request=request, user_id=user_id)
+
+    def put(self, request, user_id=None):
+        return handle_request(update_user, request=request, user_id=user_id, **request.data)
 
 
 class UserLogin(APIView):

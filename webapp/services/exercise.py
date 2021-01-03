@@ -11,3 +11,5 @@ def create_new_exercise(exercise):
     serializer.save()
 
     return serializer.data
+
+

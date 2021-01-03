@@ -1,4 +1,8 @@
+import hashlib
+import mimetypes
+
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 from django.utils.crypto import get_random_string
 
 from webapp.Errors import BadRequestException, NotFoundException
@@ -95,3 +99,48 @@ def delete_user_by_id(user_id):
     user.delete()
 
     return True
+
+
+def update_user_by_id(user_id, **kwargs):
+    user = perform_get(User.objects.get, user_id=user_id)
+
+    if user is None:
+        return None
+
+    for k, v in kwargs.items():
+        setattr(user, k, v)
+    user.save(update_fields=kwargs.keys())
+
+    return user
+
+
+def update_user_photo(session_id, avatar):
+    user = perform_get(User.objects.get, session_id=session_id)
+
+    if user is None:
+        return None
+
+    user.avatar = avatar
+    user.save()
+    return user
+
+
+def is_password_matching(password, **kwargs):
+    db_user = perform_get(User.objects.get, **kwargs)
+
+    if db_user is None:
+        return False
+
+    password_and_salt = password + db_user['salt']
+    hashed_password_and_salt = hashlib.sha256(password_and_salt.encode(encoding="utf-8")).hexdigest()
+
+    return hashed_password_and_salt == db_user['password']
+
+
+def download_image(request, image):
+    filename = image
+
+    mime_type, _ = mimetypes.guess_type(filename)
+    response = HttpResponse(filename, content_type=mime_type)
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    return response

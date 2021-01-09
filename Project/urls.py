@@ -20,11 +20,11 @@ from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from webapp import views
 from webapp.views import user, training, exercise, series
-
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path(r'api/users', user.UserList.as_view()),
+    path(r'api/users/<int:user_id>/trainings', user.UserTrainings.as_view()),
     path(r'api/users/<int:user_id>', user.UserDetails.as_view()),
     path(r'api/user/login', user.UserLogin.as_view()),
     path(r'api/user/register', user.UserRegister.as_view()),
@@ -39,6 +39,7 @@ urlpatterns = [
     path(r'api/series/<int:training_id>', series.Series.as_view())
 
 ]
+
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -50,7 +50,7 @@ def get_all_trainings_by_session_id(session_id=None, **kwargs):
     user = get_user_by_args(session_id=session_id)
 
     if session_id is None or user is None:
-        trainings = Training.objects.filter(is_public=True)
+        trainings = Training.objects.all().filter(is_public=True)
 
         return TrainingListSerializer(filter_trainings_by_args(trainings, **kwargs), many=True).data
 
@@ -76,6 +76,19 @@ def delete_training(training_id):
 
 
 def filter_trainings_by_args(trainings, **kwargs):
-    return trainings.filter(Q(training_calories__gte=kwargs['training_calories_min']) &
-                            Q(training_calories__lte=kwargs['training_calories_min']) &
+    return trainings.filter(Q(training_calories__lte=kwargs['training_calories_max']) &
+                            Q(training_calories__gte=kwargs['training_calories_min']) &
                             Q(name__contains=kwargs['training_name']))
+
+
+def get_user_trainings_by_id(session_id, user_id):
+    user = get_user_by_args(session_id=session_id)
+
+    if user is None:
+        trainings = Training.objects.all().filter(created_by=user_id, is_public=True)
+        return TrainingListSerializer(trainings, many=True).data
+
+    if user['user_id'] == user_id:
+        trainings = Training.objects.all().filter(created_by=user_id)
+
+        return TrainingListSerializer(trainings, many=True).data

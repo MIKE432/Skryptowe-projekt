@@ -47,6 +47,11 @@ def logout_user(request):
 
 
 def login_user(request):
+    request_body = request.data
+
+    if 'nick' not in request_body or 'password' not in request_body:
+        raise BadRequestException("No nick or password provided")
+
     db_user = get_raw_user_by_args(nick=request.data['nick'])
 
     if db_user is None:
@@ -98,24 +103,18 @@ def update_user(request, user_id, **kwargs):
     user = update_user_photo(request.query_params['session_id'], kwargs['avatar'][0])
 
     if user is None:
-        raise InternalServerException("Cannot ")
+        raise InternalServerException("Cannot update user")
 
     return Response({"code": 200}, status.HTTP_200_OK)
 
 
 def delete_user(request, user_id):
-    request_body = request.data
-    if 'password' not in request_body:
-        raise BadRequestException("You need provide password to remove that account")
+    query_params = request.query_params
 
-    if 'session_id' not in request_body:
+    if 'session_id' not in query_params:
         raise BadRequestException("You need provide session_id to remove that account")
 
-    if not is_password_matching(request_body['password'], user_id=user_id, session_id=request_body['session_id']):
-        raise UnauthorizedException('You don`t have permission to delete that user')
-
     if not delete_user_by_id(user_id):
-        raise UnauthorizedException("You don't have permission to delete that account")
+        raise UnauthorizedException("Cannot delete account")
 
     return Response({"code": 200}, status.HTTP_200_OK)
-

@@ -7,7 +7,7 @@ from webapp.controllers.exercise import prepare_exercise
 from webapp.services.exercise import create_new_exercise
 from webapp.services.series import create_new_series
 from webapp.services.training import create_new_training, get_training_by_args, update_training, \
-    get_all_trainings_by_session_id, delete_training
+    get_all_trainings_by_session_id, delete_training, get_user_trainings_by_id
 from webapp.services.user import get_user_by_args
 
 
@@ -34,7 +34,8 @@ def get_training_by_id(request, training_id):
     if not training['is_public'] and 'session_id' not in query_params:
         raise UnauthorizedException("You don`t have permission to read this resource(no session_id passed)")
 
-    user = get_user_by_args(session_id=request.query_params['session_id'])
+    user = get_user_by_args(
+        session_id=request.query_params['session_id']) if 'session_id' in request.query_params else None
 
     if not training['is_public'] and user is None:
         raise UnauthorizedException("You don`t have permission to read this resource")
@@ -148,3 +149,13 @@ def update_training_by_id(request, training_id):
 
     if update_training(training_id, **request_body) is None:
         raise InternalServerException("Cannot update training")
+
+
+def get_trainings_by_session_id(request, user_id):
+    query_params = request.query_params
+
+    if 'session_id' not in query_params:
+        raise UnauthorizedException("You need to be logged")
+    trainings = get_user_trainings_by_id(query_params['session_id'], user_id)
+
+    return Response(trainings, status.HTTP_200_OK)

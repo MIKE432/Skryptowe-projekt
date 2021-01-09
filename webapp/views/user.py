@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 
+from webapp.controllers.training import get_trainings_by_session_id
 from webapp.controllers.user import *
 from webapp.tools import handle_request
 
@@ -44,3 +45,9 @@ class UserList(APIView):
 
     def get(self, request):
         return handle_request(get_all_users, request=request)
+
+
+class UserTrainings(APIView):
+
+    def get(self, request, user_id):
+        return handle_request(get_trainings_by_session_id, request=request, user_id=user_id)

@@ -132,7 +132,7 @@ def delete_training_by_id(request, training_id):
     if delete_training(training_id) is None:
         raise NotFoundException('Training with given id does not exist')
 
-    return Response({"code": 200}, status.HTTP_200_OK)
+    return Response(training_id, status.HTTP_200_OK)
 
 
 def update_training_by_id(request, training_id):

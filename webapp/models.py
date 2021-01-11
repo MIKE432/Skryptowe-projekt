@@ -66,7 +66,7 @@ class Exercise(models.Model):
 
     exercise_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    about = models.CharField(max_length=1000)
+    about = models.CharField(max_length=1000, blank=True, default="No about")
     number = models.IntegerField()
     yt_link = models.CharField(max_length=500, default="", blank=True)
     photo = models.ImageField(blank=True, default=None, null=True)

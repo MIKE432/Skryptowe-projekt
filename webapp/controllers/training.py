@@ -18,6 +18,10 @@ def get_all_trainings(request):
         'calories_max') is not None else 2147483647
     training_name = query_params.get('name') if query_params.get('name') is not None else ""
     training_type = query_params.get('type') if query_params.get('type') is not None else ""
+
+    if 'session_id' not in query_params:
+        raise BadRequestException("You need to provide session id")
+
     return Response(
         get_all_trainings_by_session_id(query_params['session_id'], training_calories_min=training_calories_min,
                                         training_calories_max=training_calories_max, training_name=training_name,
